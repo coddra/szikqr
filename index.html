@@ -133,52 +133,44 @@
       });
 
       setTimeout(() => {
-        const imgTag = tempDiv.querySelector('img');
-        if (!imgTag) return;
+        const canvas = document.querySelector('canvas');
+        if (!canvas) {
+          showErrorMessage('Az oldal nem működik ezen az eszközön.');
+          return;
+        }
 
-        const canvas = document.createElement('canvas');
         canvas.width = 256;
         canvas.height = 256;
         const ctx = canvas.getContext('2d');
 
-        const qrImg = new Image();
-        qrImg.src = imgTag.src;
-        qrImg.onload = () => {
-          ctx.drawImage(qrImg, 0, 0, 256, 256);
-
-          if (includeLogo) {
-            const moduleCount = tempQr._oQRCode.moduleCount;
-            const moduleSize = 256 / moduleCount;
-            const treeSize = logoMatrix.length;
-            const startX = Math.floor((moduleCount - treeSize) / 2);
-            const startY = startX;
-
-            function drawPixels(color, pixel) {
-              ctx.fillStyle = color;
-              ctx.imageSmoothingEnabled = false;
-              const ps = Math.ceil(moduleSize);
-              for (let y = 0; y < treeSize; y++) {
-                for (let x = 0; x < treeSize; x++) {
-                  if (logoMatrix[y][x] == pixel) {
-                    const px = Math.floor((startX + x) * moduleSize);
-                    const py = Math.floor((startY + y) * moduleSize);
-                    ctx.fillRect(px, py, ps, ps);
-                  }
+        if (includeLogo) {
+          const moduleCount = tempQr._oQRCode.moduleCount;
+          const moduleSize = 256 / moduleCount;
+          const treeSize = logoMatrix.length;
+          const startX = Math.floor((moduleCount - treeSize) / 2);
+          const startY = startX;
+          function drawPixels(color, pixel) {
+            ctx.fillStyle = color;
+            ctx.imageSmoothingEnabled = false;
+            const ps = Math.ceil(moduleSize);
+            for (let y = 0; y < treeSize; y++) {
+              for (let x = 0; x < treeSize; x++) {
+                if (logoMatrix[y][x] == pixel) {
+                  const px = Math.floor((startX + x) * moduleSize);
+                  const py = Math.floor((startY + y) * moduleSize);
+                  ctx.fillRect(px, py, ps, ps);
                 }
               }
             }
-
-            drawPixels('#b7182e', 1);
-            drawPixels('#ffffff', 2);
           }
+          drawPixels('#b7182e', 1);
+          drawPixels('#ffffff', 2);
+        }
 
-          // Replace old image
-          qrContainer.innerHTML = "";
-          const finalImg = new Image();
-          finalImg.src = canvas.toDataURL();
-          qrContainer.appendChild(finalImg);
-          qrCodeDisplay.classList.remove('hidden');
-        };
+        const finalImg = new Image();
+        finalImg.src = canvas.toDataURL();
+        qrContainer.appendChild(finalImg);
+        qrCodeDisplay.classList.remove('hidden');
       }, 100);
     } catch (err) {
       showErrorMessage(`Probléma akadt a QR-kód generálásakor: ${err.message || 'ismeretlen probléma'}`);
