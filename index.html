@@ -24,7 +24,7 @@
       height: auto;
     }
   </style>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
 </head>
 
 <body class="min-h-screen bg-gradient-to-br from-purple-600 to-blue-500 flex items-center justify-center p-4">
@@ -93,20 +93,33 @@
     [0,0,0,0,0,2,2,2,2,2,2,0,0,0,0,0,0]
   ];
 
-  function showErrorMessage(message) {
-    errorMessage.textContent = message;
-    errorMessage.classList.remove('hidden');
-    qrCodeDisplay.classList.add('hidden');
-  }
+  function drawMatrixLogo(canvas, matrix, moduleSize) {
+    const ctx = canvas.getContext("2d");
+    const size = canvas.width;
+    const moduleCount = Math.floor(size / moduleSize);
+    const treeSize = matrix.length;
+    const startX = Math.floor((moduleCount - treeSize) / 2);
+    const startY = startX;
 
-  function hideErrorMessage() {
-    errorMessage.classList.add('hidden');
-    errorMessage.textContent = '';
+    ctx.imageSmoothingEnabled = false;
+    const ps = Math.ceil(moduleSize);
+
+    for (let y = 0; y < treeSize; y++) {
+      for (let x = 0; x < treeSize; x++) {
+        const val = matrix[y][x];
+        if (val === 1) ctx.fillStyle = "#b7182e";
+        else if (val === 2) ctx.fillStyle = "#ffffff";
+        else continue;
+
+        const px = (startX + x) * moduleSize;
+        const py = (startY + y) * moduleSize;
+        ctx.fillRect(px, py, ps, ps);
+      }
+    }
   }
 
   function generateQrCode(qrContent) {
     hideErrorMessage();
-
     qrContent = qrContent.trim();
     let includeLogo = logoCheckbox.checked;
 
@@ -117,60 +130,52 @@
 
     generateButton.textContent = 'Generálás...';
     generateButton.disabled = true;
-
     qrContainer.innerHTML = '';
+
     try {
-      const tempDiv = document.createElement('div');
-      qrContainer.appendChild(tempDiv);
+      const canvas = document.createElement('canvas');
+      qrContainer.appendChild(canvas);
 
+      let qr = qrcode(0, 'H');
+      qr.addData(qrContent);
+      qr.make();
 
-      const tempQr = new QRCode(tempDiv, {
-        text: qrContent,
-        width: 256,
-        height: 256,
-        colorDark: '#000000',
-        colorLight: '#ffffff',
-        correctLevel: QRCode.CorrectLevel.H,
-      });
-
-      if (includeLogo) {
-        const canvas = tempDiv.querySelector('canvas');
-        const ctx = canvas.getContext('2d');
-
-        const moduleCount = tempQr._oQRCode.moduleCount;
-        const moduleSize = 256 / moduleCount;
-        const treeSize = logoMatrix.length;
-        const startX = Math.floor((moduleCount - treeSize) / 2);
-        const startY = startX;
-        function drawPixels(color, pixel) {
-          ctx.fillStyle = color;
-          ctx.imageSmoothingEnabled = false;
-          const ps = Math.ceil(moduleSize);
-          for (let y = 0; y < treeSize; y++) {
-            for (let x = 0; x < treeSize; x++) {
-              if (logoMatrix[y][x] == pixel) {
-                const px = Math.floor((startX + x) * moduleSize);
-                const py = Math.floor((startY + y) * moduleSize);
-                ctx.fillRect(px, py, ps, ps);
-              }
-            }
-          }
-        }
-        drawPixels('#b7182e', 1);
-        drawPixels('#ffffff', 2);
-
-        const finalImage = new Image();
-        finalImage.src = canvas.toDataURL();
+      if (includeLogo && qr.getModuleCount() < logoMatrix.length * 2) {
+        const typeNumber = Math.ceil((logoMatrix.length * 2 - 17) / 4)
+        qr = qrcode(typeNumber, 'H');
+        qr.addData(qrContent);
+        qr.make();
       }
+
+      const moduleSize = Math.floor(256 / qr.getModuleCount());
+      canvas.width = moduleSize * qr.getModuleCount();
+      canvas.height = canvas.width;
+      const ctx = canvas.getContext("2d");
+
+      qr.renderTo2dContext(ctx, moduleSize);
+
+      if (includeLogo)
+        drawMatrixLogo(canvas, logoMatrix, moduleSize);
 
       qrCodeDisplay.classList.remove('hidden');
     } catch (err) {
       showErrorMessage(`Probléma akadt a QR-kód generálásakor: ${err.message || 'ismeretlen probléma'}`);
-      console.error('Error generating QR code:', err);
+      console.error(err);
     } finally {
       generateButton.textContent = 'QR-kód generálása';
       generateButton.disabled = false;
     }
+  }
+
+  function showErrorMessage(message) {
+    errorMessage.textContent = message;
+    errorMessage.classList.remove('hidden');
+    qrCodeDisplay.classList.add('hidden');
+  }
+
+  function hideErrorMessage() {
+    errorMessage.classList.add('hidden');
+    errorMessage.textContent = '';
   }
 
   window.onload = function () {
