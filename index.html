@@ -235,7 +235,7 @@
 
   function generateQrCode(qrContent) {
     hideErrorMessage();
-    qrContent = qrContent.trim();
+    qrContent = unescape(encodeURIComponent(qrContent.trim()));
     let includeLogo = logoCheckbox.checked;
 
     if (!qrContent) {
@@ -251,13 +251,13 @@
       const canvas = document.createElement('canvas');
 
       let qr = qrcode(0, 'H');
-      qr.addData(qrContent);
+      qr.addData(qrContent, 'Byte');
       qr.make();
 
       if (includeLogo && qr.getModuleCount() < logoMatrix.length * 2) {
         const typeNumber = Math.ceil((logoMatrix.length * 2 - 17) / 4)
         qr = qrcode(typeNumber, 'H');
-        qr.addData(qrContent);
+        qr.addData(qrContent, 'Byte');
         qr.make();
       }
 
