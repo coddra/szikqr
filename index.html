@@ -104,14 +104,15 @@
   ];
 
   function drawMatrix(ctx, matrix, ps) {
-    const size = matrix.length;
-    ctx.imageSmoothingEnabled = true;
-
     const colors = {
       1: '#ffffff',
       2: '#000000',
       3: '#b7182e'
     };
+    const size = matrix.length;
+    ctx.imageSmoothingEnabled = true;
+    ctx.fillStyle = colors[1];
+    ctx.fillRect(0, 0, size * ps, size * ps);
 
     const visited = Array.from({ length: size }, () => Array(size).fill(false));
 
