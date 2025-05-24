@@ -162,6 +162,7 @@
         current.y += direction.y;
       }
 
+      outline.push({ y: current.y - last.y, x: current.x - last.x });
       return outline;
     }
 
@@ -170,10 +171,20 @@
       const c = outline[0];
       ctx.moveTo(c.x * ps, c.y * ps);
       for (let i = 1; i < outline.length; i++) {
-        r = outline[i];
-        c.x += r.x;
+        const r = outline[i];
+        const n = i == outline.length - 1 ? outline[1] : outline[i + 1];
+        const a = Math.min(Math.abs(r.x + r.y), Math.abs(n.x + n.y)) / 2;
+        const p = {
+          y: c.y + r.y - Math.sign(r.y) * a,
+          x: c.x + r.x - Math.sign(r.x) * a,
+        }
+        ctx.lineTo(p.x * ps, p.y * ps);
+
         c.y += r.y;
-        ctx.lineTo(c.x * ps, c.y * ps);
+        c.x += r.x;
+        p.y = c.y + Math.sign(n.y) * a;
+        p.x = c.x + Math.sign(n.x) * a;
+        ctx.arcTo(c.x * ps, c.y * ps, p.x * ps, p.y * ps, a * ps);
       }
       ctx.fillStyle = color;
       ctx.fill();
