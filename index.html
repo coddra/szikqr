@@ -75,25 +75,6 @@
   const qrContainer = document.getElementById('qr-code');
 
   const logoMatrix = [
-<<<<<<< Updated upstream
-    [0,0,0,0,0,0,2,2,2,2,0,0,0,0,0,0,0],
-    [0,0,0,0,0,2,2,1,1,2,2,0,0,0,0,0,0],
-    [0,0,0,2,2,2,1,1,1,1,2,2,0,0,0,0,0],
-    [0,0,0,2,1,1,1,1,1,1,1,2,2,0,0,0,0],
-    [0,0,2,2,2,1,1,1,1,1,1,1,2,2,0,0,0],
-    [0,0,2,1,1,1,1,1,1,1,1,1,1,2,0,0,0],
-    [0,2,2,2,1,1,2,1,1,1,1,1,2,2,2,0,0],
-    [0,2,1,1,1,1,1,1,1,1,1,1,1,1,2,2,0],
-    [2,2,2,1,1,1,1,1,1,1,1,1,1,1,1,2,0],
-    [2,1,1,1,1,1,1,1,1,1,1,2,2,1,2,2,0],
-    [2,2,1,1,2,2,1,1,1,1,1,1,1,1,1,2,0],
-    [0,2,2,1,1,1,1,1,1,1,1,1,1,1,2,2,0],
-    [0,2,1,1,1,2,2,2,2,1,1,1,1,2,2,0,0],
-    [0,2,2,2,2,2,1,2,1,1,2,2,2,2,0,0,0],
-    [0,0,0,0,0,2,1,1,1,1,2,0,0,0,0,0,0],
-    [0,0,0,0,0,2,1,1,1,1,2,0,0,0,0,0,0],
-    [0,0,0,0,0,2,2,2,2,2,2,0,0,0,0,0,0]
-=======
     [0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 1, 1, 3, 3, 1, 1, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 1, 1, 1, 3, 3, 3, 3, 1, 1, 0, 0, 0, 0, 0],
@@ -111,28 +92,12 @@
     [0, 0, 0, 0, 0, 1, 3, 3, 3, 3, 1, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 1, 3, 3, 3, 3, 1, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0]
->>>>>>> Stashed changes
   ];
 
-  function drawMatrixLogo(canvas, matrix, moduleSize) {
-    const ctx = canvas.getContext("2d");
-    const size = canvas.width;
-    const moduleCount = Math.floor(size / moduleSize);
-    const treeSize = matrix.length;
-    const startX = Math.floor((moduleCount - treeSize) / 2);
-    const startY = startX;
-
+  function drawMatrix(ctx, matrix, ps) {
+    const size = matrix.length;
     ctx.imageSmoothingEnabled = false;
-    const ps = Math.ceil(moduleSize);
 
-<<<<<<< Updated upstream
-    for (let y = 0; y < treeSize; y++) {
-      for (let x = 0; x < treeSize; x++) {
-        const val = matrix[y][x];
-        if (val === 1) ctx.fillStyle = "#b7182e";
-        else if (val === 2) ctx.fillStyle = "#ffffff";
-        else continue;
-=======
     const colors = {
       1: '#ffffff',
       2: '#000000',
@@ -224,11 +189,24 @@
       }
     }
   }
->>>>>>> Stashed changes
 
-        const px = (startX + x) * moduleSize;
-        const py = (startY + y) * moduleSize;
-        ctx.fillRect(px, py, ps, ps);
+  function getMatrix(qr) {
+    const size = qr.getModuleCount();
+    let res = new Array(size);
+    for (let y = 0; y < size; y++) {
+      res[y] = new Array(size);
+      for (let x = 0; x < size; x++) {
+        res[y][x] = qr.isDark(y, x) ? 2 : 1;
+      }
+    }
+    return res;
+  }
+
+  function overlay(m1, m2, dx, dy) {
+    for (let y = 0; y < m2.length; y++) {
+      for (let x = 0; x < m2.length; x++) {
+        if (m2[y][x] !== 0)
+          m1[y + dy][x + dx] = m2[y][x];
       }
     }
   }
@@ -262,15 +240,18 @@
         qr.make();
       }
 
-      const moduleSize = Math.floor(256 / qr.getModuleCount());
-      canvas.width = moduleSize * qr.getModuleCount();
+      const matrix = getMatrix(qr);
+      if (includeLogo) {
+        const disp = Math.floor((matrix.length - logoMatrix.length) / 2);
+        overlay(matrix, logoMatrix, disp, disp);
+      }
+
+      const moduleSize = Math.floor(256 / matrix.length);
+      canvas.width = moduleSize * matrix.length;
       canvas.height = canvas.width;
       const ctx = canvas.getContext("2d");
 
-      qr.renderTo2dContext(ctx, moduleSize);
-
-      if (includeLogo)
-        drawMatrixLogo(canvas, logoMatrix, moduleSize);
+      drawMatrix(ctx, matrix, moduleSize);
 
       qrCodeDisplay.classList.remove('hidden');
     } catch (err) {
