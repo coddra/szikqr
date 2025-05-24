@@ -248,7 +248,6 @@
 
     try {
       const canvas = document.createElement('canvas');
-      qrContainer.appendChild(canvas);
 
       let qr = qrcode(0, 'H');
       qr.addData(qrContent);
@@ -274,6 +273,9 @@
 
       drawMatrix(ctx, matrix, moduleSize);
 
+      const img = document.createElement('img');
+      img.src = canvas.toDataURL('image/png');
+      qrContainer.appendChild(img);
       qrCodeDisplay.classList.remove('hidden');
     } catch (err) {
       showErrorMessage(`Probléma akadt a QR-kód generálásakor: ${err.message || 'ismeretlen probléma'}`);
