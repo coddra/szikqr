@@ -43,10 +43,18 @@
         class="w-full p-3 border border-gray-300 rounded-lg focus:directions-none focus:ring-2 focus:ring-blue-400 text-gray-800" />
     </div>
 
-    <div class="flex items-center mb-4">
-      <input id="includeLogo" type="checkbox" class="mr-2" checked>
-      <label for="includeLogo" class="text-sm text-gray-700">Logó megjelenítése</label>
+    <div class="flex items-center justify-between mb-4">
+      <div class="flex items-center">
+        <input id="includeLogo" type="checkbox" class="mr-2" checked>
+        <label for="includeLogo" class="text-sm text-gray-700">Logó megjelenítése</label>
+      </div>
+      <select id="shape" class="border border-gray-300 rounded-lg text-sm px-2 py-1">
+        <option value="8" selected>kerek</option>
+        <option value="1">tompa</option>
+        <option value="0">szögletes</option>
+      </select>
     </div>
+
 
     <button type="submit" id="generateButton"
       class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 transition duration-300 ease-in-out focus:directions-none focus:ring-2 focus:ring-blue-400 disabled:opacity-50 disabled:cursor-not-allowed">
@@ -69,10 +77,11 @@
 <script>
   const qrContentInput = document.getElementById("qr-content");
   const generateButton = document.getElementById("generateButton");
-  const qrCodeDisplay = document.getElementById("qrCodeDisplay");
-  const errorMessage = document.getElementById('errorMessage');
-  const logoCheckbox = document.getElementById('includeLogo');
-  const qrContainer = document.getElementById('qr-code');
+  const qrCodeDisplay  = document.getElementById("qrCodeDisplay");
+  const errorMessage   = document.getElementById('errorMessage');
+  const logoCheckbox   = document.getElementById('includeLogo');
+  const shapeDropdown  = document.getElementById('shape');
+  const qrContainer    = document.getElementById('qr-code');
 
   const logoMatrix = [
     [0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0],
@@ -96,7 +105,7 @@
 
   function drawMatrix(ctx, matrix, ps) {
     const size = matrix.length;
-    ctx.imageSmoothingEnabled = false;
+    ctx.imageSmoothingEnabled = true;
 
     const colors = {
       1: '#ffffff',
@@ -130,14 +139,14 @@
 
     function getOutline(coord) {
       const direction = { y: 0, x: 1 };
-      const outline = [ coord ];
+      const outline = [coord];
       const val = safeRead(matrix, coord);
       const current = { y: coord.y, x: coord.x + 1 };
       const last = { ...coord };
 
       while (current.x != coord.x || current.y != coord.y) {
         let lcoord, rcoord;
-        if (direction.x > 0 || direction.y > 0){
+        if (direction.x > 0 || direction.y > 0) {
           lcoord = { y: current.y - direction.x, x: current.x };
           rcoord = { y: current.y, x: current.x - direction.y };
         } else {
@@ -166,14 +175,14 @@
       return outline;
     }
 
-    function drawBlob(outline, color) {
+    function drawBlob(outline, color, maxarc) {
       ctx.beginPath();
       const c = outline[0];
       ctx.moveTo(c.x * ps, c.y * ps);
       for (let i = 1; i < outline.length; i++) {
         const r = outline[i];
         const n = i == outline.length - 1 ? outline[1] : outline[i + 1];
-        const a = Math.min(Math.abs(r.x + r.y), Math.abs(n.x + n.y)) / 2;
+        const a = Math.min(Math.abs(r.x + r.y), Math.abs(n.x + n.y), maxarc) / 2;
         const p = {
           y: c.y + r.y - Math.sign(r.y) * a,
           x: c.x + r.x - Math.sign(r.x) * a,
@@ -197,7 +206,7 @@
           continue;
         floodFill({ y, x });
         const outline = getOutline({ y, x });
-        drawBlob(outline, colors[val]);
+        drawBlob(outline, colors[val], parseInt(shapeDropdown.value));
       }
     }
   }
