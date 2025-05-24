@@ -19,6 +19,7 @@
     body {
       font-family: 'Inter', sans-serif;
     }
+
     #qrCodeDisplay img {
       max-width: 100%;
       height: auto;
@@ -37,9 +38,9 @@
       <label for="qr-content" class="block text-gray-700 text-sm font-semibold mb-2">
         URL vagy szöveg:
       </label>
-      <input type="text" name="qr-code-content" id="qr-content" value=""
-        placeholder="https://example.com" autocomplete="off"
-        class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 text-gray-800" />
+      <input type="text" name="qr-code-content" id="qr-content" value="" placeholder="https://example.com"
+        autocomplete="off"
+        class="w-full p-3 border border-gray-300 rounded-lg focus:directions-none focus:ring-2 focus:ring-blue-400 text-gray-800" />
     </div>
 
     <div class="flex items-center mb-4">
@@ -48,7 +49,7 @@
     </div>
 
     <button type="submit" id="generateButton"
-      class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:opacity-50 disabled:cursor-not-allowed">
+      class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 transition duration-300 ease-in-out focus:directions-none focus:ring-2 focus:ring-blue-400 disabled:opacity-50 disabled:cursor-not-allowed">
       QR-kód generálása
     </button>
 
@@ -74,6 +75,7 @@
   const qrContainer = document.getElementById('qr-code');
 
   const logoMatrix = [
+<<<<<<< Updated upstream
     [0,0,0,0,0,0,2,2,2,2,0,0,0,0,0,0,0],
     [0,0,0,0,0,2,2,1,1,2,2,0,0,0,0,0,0],
     [0,0,0,2,2,2,1,1,1,1,2,2,0,0,0,0,0],
@@ -91,6 +93,25 @@
     [0,0,0,0,0,2,1,1,1,1,2,0,0,0,0,0,0],
     [0,0,0,0,0,2,1,1,1,1,2,0,0,0,0,0,0],
     [0,0,0,0,0,2,2,2,2,2,2,0,0,0,0,0,0]
+=======
+    [0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 1, 1, 3, 3, 1, 1, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 1, 1, 1, 3, 3, 3, 3, 1, 1, 0, 0, 0, 0, 0],
+    [0, 0, 0, 1, 3, 3, 3, 3, 3, 3, 3, 1, 1, 0, 0, 0, 0],
+    [0, 0, 1, 1, 1, 3, 3, 3, 3, 3, 3, 3, 1, 1, 0, 0, 0],
+    [0, 0, 1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 0, 0, 0],
+    [0, 1, 1, 1, 3, 3, 1, 3, 3, 3, 3, 3, 1, 1, 1, 0, 0],
+    [0, 1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 0],
+    [1, 1, 1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 0],
+    [1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 3, 1, 1, 0],
+    [1, 1, 3, 3, 1, 1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 0],
+    [0, 1, 1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 0],
+    [0, 1, 3, 3, 3, 1, 1, 1, 1, 3, 3, 3, 3, 1, 1, 0, 0],
+    [0, 1, 1, 1, 1, 1, 3, 1, 3, 3, 1, 1, 1, 1, 0, 0, 0],
+    [0, 0, 0, 0, 0, 1, 3, 3, 3, 3, 1, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 1, 3, 3, 3, 3, 1, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0]
+>>>>>>> Stashed changes
   ];
 
   function drawMatrixLogo(canvas, matrix, moduleSize) {
@@ -104,12 +125,106 @@
     ctx.imageSmoothingEnabled = false;
     const ps = Math.ceil(moduleSize);
 
+<<<<<<< Updated upstream
     for (let y = 0; y < treeSize; y++) {
       for (let x = 0; x < treeSize; x++) {
         const val = matrix[y][x];
         if (val === 1) ctx.fillStyle = "#b7182e";
         else if (val === 2) ctx.fillStyle = "#ffffff";
         else continue;
+=======
+    const colors = {
+      1: '#ffffff',
+      2: '#000000',
+      3: '#b7182e'
+    };
+
+    const visited = Array.from({ length: size }, () => Array(size).fill(false));
+
+    function safeRead(matrix, coord) {
+      return coord.x < 0 || coord.y < 0 || coord.x >= matrix.length || coord.y >= matrix.length
+        ? -1 : matrix[coord.y][coord.x];
+    }
+
+    function floodFill(start) {
+      const stack = [start];
+      const val = safeRead(matrix, start);
+
+      while (stack.length > 0) {
+        const coord = stack.pop();
+        if (!safeRead(visited, coord) && safeRead(matrix, coord) === val) {
+          visited[coord.y][coord.x] = true;
+
+          stack.push({ x: coord.x + 1, y: coord.y });
+          stack.push({ x: coord.x - 1, y: coord.y });
+          stack.push({ x: coord.x, y: coord.y + 1 });
+          stack.push({ x: coord.x, y: coord.y - 1 });
+        }
+      }
+    }
+
+    function getOutline(coord) {
+      const last = { y: 0, x: 1 };
+      const outline = [ coord ];
+      const val = safeRead(matrix, coord);
+      let current = { y: coord.y, x: coord.x + 1 };
+
+      let steps = 0;
+      while (current.x != coord.x || current.y != coord.y) {
+        let lcoord, rcoord;
+        if (last.x > 0 || last.y > 0){
+          lcoord = { y: current.y - last.x, x: current.x };
+          rcoord = { y: current.y, x: current.x - last.y };
+        } else {
+          lcoord = { y: current.y + last.y, x: current.x + last.y + last.x };
+          rcoord = { y: current.y + last.y + last.x, x: current.x + last.x }
+        }
+
+        let left = safeRead(matrix, lcoord);
+        let right = safeRead(matrix, rcoord);
+        let turn = right != val ? -1 : left != val ? 0 : 1;
+
+        const x = last.x;
+        last.x = turn == 0 ? last.x : turn * last.y;
+        last.y = turn == 0 ? last.y : -turn * x;
+
+        if (turn != 0) {
+          outline.push({ ...current });
+        }
+        current.x += last.x;
+        current.y += last.y;
+
+        steps++;
+        if (steps > 1000) {
+          showErrorMessage('too long outline');
+          return outline;
+        }
+      }
+
+      return outline;
+    }
+
+    function drawBlob(outline, color) {
+      ctx.beginPath();
+      ctx.moveTo(outline[0].x * ps, outline[0].y * ps);
+      for (let i = 1; i < outline.length; i++)
+        ctx.lineTo(outline[i].x * ps, outline[i].y * ps);
+      ctx.fillStyle = color;
+      ctx.fill();
+    }
+
+    for (let y = 0; y < size; y++) {
+      for (let x = 0; x < size; x++) {
+        const val = matrix[y][x];
+        if (!colors[val] || visited[y][x])
+          continue;
+        floodFill({ y, x });
+        const outline = getOutline({ y, x });
+        drawBlob(outline, colors[val]);
+      }
+    }
+  }
+>>>>>>> Stashed changes
 
         const px = (startX + x) * moduleSize;
         const py = (startY + y) * moduleSize;
