@@ -129,41 +129,37 @@
     }
 
     function getOutline(coord) {
-      const last = { y: 0, x: 1 };
+      const direction = { y: 0, x: 1 };
       const outline = [ coord ];
       const val = safeRead(matrix, coord);
-      let current = { y: coord.y, x: coord.x + 1 };
+      const current = { y: coord.y, x: coord.x + 1 };
+      const last = { ...coord };
 
-      let steps = 0;
       while (current.x != coord.x || current.y != coord.y) {
         let lcoord, rcoord;
-        if (last.x > 0 || last.y > 0){
-          lcoord = { y: current.y - last.x, x: current.x };
-          rcoord = { y: current.y, x: current.x - last.y };
+        if (direction.x > 0 || direction.y > 0){
+          lcoord = { y: current.y - direction.x, x: current.x };
+          rcoord = { y: current.y, x: current.x - direction.y };
         } else {
-          lcoord = { y: current.y + last.y, x: current.x + last.y + last.x };
-          rcoord = { y: current.y + last.y + last.x, x: current.x + last.x }
+          lcoord = { y: current.y + direction.y, x: current.x + direction.y + direction.x };
+          rcoord = { y: current.y + direction.y + direction.x, x: current.x + direction.x }
         }
 
         let left = safeRead(matrix, lcoord);
         let right = safeRead(matrix, rcoord);
         let turn = right != val ? -1 : left != val ? 0 : 1;
 
-        const x = last.x;
-        last.x = turn == 0 ? last.x : turn * last.y;
-        last.y = turn == 0 ? last.y : -turn * x;
+        const x = direction.x;
+        direction.x = turn == 0 ? direction.x : turn * direction.y;
+        direction.y = turn == 0 ? direction.y : -turn * x;
 
         if (turn != 0) {
-          outline.push({ ...current });
+          outline.push({ y: current.y - last.y, x: current.x - last.x });
+          last.x = current.x;
+          last.y = current.y
         }
-        current.x += last.x;
-        current.y += last.y;
-
-        steps++;
-        if (steps > 1000) {
-          showErrorMessage('too long outline');
-          return outline;
-        }
+        current.x += direction.x;
+        current.y += direction.y;
       }
 
       return outline;
@@ -171,9 +167,14 @@
 
     function drawBlob(outline, color) {
       ctx.beginPath();
-      ctx.moveTo(outline[0].x * ps, outline[0].y * ps);
-      for (let i = 1; i < outline.length; i++)
-        ctx.lineTo(outline[i].x * ps, outline[i].y * ps);
+      const c = outline[0];
+      ctx.moveTo(c.x * ps, c.y * ps);
+      for (let i = 1; i < outline.length; i++) {
+        r = outline[i];
+        c.x += r.x;
+        c.y += r.y;
+        ctx.lineTo(c.x * ps, c.y * ps);
+      }
       ctx.fillStyle = color;
       ctx.fill();
     }
