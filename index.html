@@ -83,6 +83,12 @@
   const shapeDropdown  = document.getElementById('shape');
   const qrContainer    = document.getElementById('qr-code');
 
+  const colors = {
+    1: '#ffffff',
+    2: '#000000',
+    3: '#b7182e'
+  };
+
   const logoMatrix = [
     [0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 1, 1, 3, 3, 1, 1, 0, 0, 0, 0, 0, 0],
@@ -103,111 +109,102 @@
     [0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0]
   ];
 
-  function drawMatrix(ctx, matrix, ps) {
-    const colors = {
-      1: '#ffffff',
-      2: '#000000',
-      3: '#b7182e'
-    };
+  function safeRead(matrix, coord) {
+    return coord.x < 0 || coord.y < 0 || coord.x >= matrix.length || coord.y >= matrix.length
+      ? -1 : matrix[coord.y][coord.x];
+  }
+
+  function floodFill(matrix, start) {
+    const stack = [start];
+    const val = safeRead(matrix, start);
+    while (stack.length > 0) {
+      const coord = stack.pop();
+      if (safeRead(matrix, coord) === val) {
+        matrix[coord.y][coord.x] = -1;
+        stack.push({ x: coord.x + 1, y: coord.y });
+        stack.push({ x: coord.x - 1, y: coord.y });
+        stack.push({ x: coord.x, y: coord.y + 1 });
+        stack.push({ x: coord.x, y: coord.y - 1 });
+      }
+    }
+  }
+
+  function getOutline(matrix, coord) {
+    const direction = { y: 0, x: 1 };
+    const outline = { start: coord, lines: [] };
+    const val = safeRead(matrix, coord);
+    const current = { y: coord.y, x: coord.x + 1 };
+    const last = { ...coord };
+
+    while (current.x != coord.x || current.y != coord.y) {
+      let lcoord, rcoord;
+      if (direction.x > 0 || direction.y > 0) {
+        lcoord = { y: current.y - direction.x, x: current.x };
+        rcoord = { y: current.y, x: current.x - direction.y };
+      } else {
+        lcoord = { y: current.y + direction.y, x: current.x + direction.y + direction.x };
+        rcoord = { y: current.y + direction.y + direction.x, x: current.x + direction.x }
+      }
+
+      let left = safeRead(matrix, lcoord);
+      let right = safeRead(matrix, rcoord);
+      let turn = right != val ? -1 : left != val ? 0 : 1;
+
+      const x = direction.x;
+      direction.x = turn == 0 ? direction.x : turn * direction.y;
+      direction.y = turn == 0 ? direction.y : -turn * x;
+
+      if (turn != 0) {
+        outline.lines.push({ y: current.y - last.y, x: current.x - last.x });
+        last.x = current.x;
+        last.y = current.y
+      }
+      current.x += direction.x;
+      current.y += direction.y;
+    }
+
+    outline.lines.push({ y: current.y - last.y, x: current.x - last.x });
+    return outline;
+  }
+
+  function drawBlob(ctx, outline, color, moduleSize, maxarc) {
+    ctx.beginPath();
+    const c = outline.start;
+    ctx.moveTo(c.x * moduleSize, c.y * moduleSize);
+    for (let i = 0; i < outline.lines.length; i++) {
+      const r = outline.lines[i];
+      const n = i == outline.lines.length - 1 ? outline.lines[0] : outline.lines[i + 1];
+      const a = Math.min(Math.abs(r.x + r.y), Math.abs(n.x + n.y), maxarc) / 2;
+      const p = {
+        y: c.y + r.y - Math.sign(r.y) * a,
+        x: c.x + r.x - Math.sign(r.x) * a,
+      }
+      ctx.lineTo(p.x * moduleSize, p.y * moduleSize);
+
+      c.y += r.y;
+      c.x += r.x;
+      p.y = c.y + Math.sign(n.y) * a;
+      p.x = c.x + Math.sign(n.x) * a;
+      ctx.arcTo(c.x * moduleSize, c.y * moduleSize, p.x * moduleSize, p.y * moduleSize, a * moduleSize);
+    }
+    ctx.fillStyle = color;
+    ctx.fill();
+  }
+
+  function drawMatrix(ctx, matrix, moduleSize) {
     const size = matrix.length;
-    ctx.imageSmoothingEnabled = true;
     ctx.fillStyle = colors[1];
-    ctx.fillRect(0, 0, size * ps, size * ps);
-
-    const visited = Array.from({ length: size }, () => Array(size).fill(false));
-
-    function safeRead(matrix, coord) {
-      return coord.x < 0 || coord.y < 0 || coord.x >= matrix.length || coord.y >= matrix.length
-        ? -1 : matrix[coord.y][coord.x];
-    }
-
-    function floodFill(start) {
-      const stack = [start];
-      const val = safeRead(matrix, start);
-
-      while (stack.length > 0) {
-        const coord = stack.pop();
-        if (!safeRead(visited, coord) && safeRead(matrix, coord) === val) {
-          visited[coord.y][coord.x] = true;
-
-          stack.push({ x: coord.x + 1, y: coord.y });
-          stack.push({ x: coord.x - 1, y: coord.y });
-          stack.push({ x: coord.x, y: coord.y + 1 });
-          stack.push({ x: coord.x, y: coord.y - 1 });
-        }
-      }
-    }
-
-    function getOutline(coord) {
-      const direction = { y: 0, x: 1 };
-      const outline = [coord];
-      const val = safeRead(matrix, coord);
-      const current = { y: coord.y, x: coord.x + 1 };
-      const last = { ...coord };
-
-      while (current.x != coord.x || current.y != coord.y) {
-        let lcoord, rcoord;
-        if (direction.x > 0 || direction.y > 0) {
-          lcoord = { y: current.y - direction.x, x: current.x };
-          rcoord = { y: current.y, x: current.x - direction.y };
-        } else {
-          lcoord = { y: current.y + direction.y, x: current.x + direction.y + direction.x };
-          rcoord = { y: current.y + direction.y + direction.x, x: current.x + direction.x }
-        }
-
-        let left = safeRead(matrix, lcoord);
-        let right = safeRead(matrix, rcoord);
-        let turn = right != val ? -1 : left != val ? 0 : 1;
-
-        const x = direction.x;
-        direction.x = turn == 0 ? direction.x : turn * direction.y;
-        direction.y = turn == 0 ? direction.y : -turn * x;
-
-        if (turn != 0) {
-          outline.push({ y: current.y - last.y, x: current.x - last.x });
-          last.x = current.x;
-          last.y = current.y
-        }
-        current.x += direction.x;
-        current.y += direction.y;
-      }
-
-      outline.push({ y: current.y - last.y, x: current.x - last.x });
-      return outline;
-    }
-
-    function drawBlob(outline, color, maxarc) {
-      ctx.beginPath();
-      const c = outline[0];
-      ctx.moveTo(c.x * ps, c.y * ps);
-      for (let i = 1; i < outline.length; i++) {
-        const r = outline[i];
-        const n = i == outline.length - 1 ? outline[1] : outline[i + 1];
-        const a = Math.min(Math.abs(r.x + r.y), Math.abs(n.x + n.y), maxarc) / 2;
-        const p = {
-          y: c.y + r.y - Math.sign(r.y) * a,
-          x: c.x + r.x - Math.sign(r.x) * a,
-        }
-        ctx.lineTo(p.x * ps, p.y * ps);
-
-        c.y += r.y;
-        c.x += r.x;
-        p.y = c.y + Math.sign(n.y) * a;
-        p.x = c.x + Math.sign(n.x) * a;
-        ctx.arcTo(c.x * ps, c.y * ps, p.x * ps, p.y * ps, a * ps);
-      }
-      ctx.fillStyle = color;
-      ctx.fill();
-    }
+    ctx.fillRect(0, 0, size * moduleSize, size * moduleSize);
 
     for (let y = 0; y < size; y++) {
       for (let x = 0; x < size; x++) {
         const val = matrix[y][x];
-        if (!colors[val] || visited[y][x])
+        if (!colors[val])
           continue;
-        floodFill({ y, x });
-        const outline = getOutline({ y, x });
-        drawBlob(outline, colors[val], parseInt(shapeDropdown.value));
+        const outline = getOutline(matrix, { y, x });
+        const maxarc = parseInt(shapeDropdown.value);
+        drawBlob(ctx, outline, colors[val], moduleSize, maxarc);
+        floodFill(matrix, { y, x });
       }
     }
   }
