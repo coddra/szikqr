@@ -211,18 +211,6 @@
     }
   }
 
-  function getMatrix(qr) {
-    const size = qr.getModuleCount();
-    let res = new Array(size);
-    for (let y = 0; y < size; y++) {
-      res[y] = new Array(size);
-      for (let x = 0; x < size; x++) {
-        res[y][x] = qr.isDark(y, x) ? 2 : 1;
-      }
-    }
-    return res;
-  }
-
   function overlay(m1, m2, dx, dy) {
     for (let y = 0; y < m2.length; y++) {
       for (let x = 0; x < m2.length; x++) {
@@ -232,15 +220,45 @@
     }
   }
 
-  function generateQrCode(qrContent) {
-    hideErrorMessage();
+  function getQRMatrix(qrContent) {
     qrContent = unescape(encodeURIComponent(qrContent.trim()));
-    let includeLogo = logoCheckbox.checked;
 
+    let qr = qrcode(0, 'H');
+    qr.addData(qrContent, 'Byte');
+    qr.make();
+
+    if (includeLogo && qr.getModuleCount() < logoMatrix.length * 2) {
+      const typeNumber = Math.ceil((logoMatrix.length * 2 - 17) / 4)
+      qr = qrcode(typeNumber, 'H');
+      qr.addData(qrContent, 'Byte');
+      qr.make();
+    }
+
+    const size = qr.getModuleCount();
+    const res = new Array(size);
+    for (let y = 0; y < size; y++) {
+      res[y] = new Array(size);
+      for (let x = 0; x < size; x++) {
+        res[y][x] = qr.isDark(y, x) ? 2 : 1;
+      }
+    }
+
+    if (includeLogo) {
+      const disp = Math.floor((res.length - logoMatrix.length) / 2);
+      overlay(res, logoMatrix, disp, disp);
+    }
+
+    return res
+  }
+
+  function generateQrCode(qrContent) {
     if (!qrContent) {
       showErrorMessage('Írj be egy URL-t vagy szöveget a generáláshoz!');
       return;
     }
+
+    hideErrorMessage();
+    let includeLogo = logoCheckbox.checked;
 
     generateButton.textContent = 'Generálás...';
     generateButton.disabled = true;
@@ -248,23 +266,7 @@
 
     try {
       const canvas = document.createElement('canvas');
-
-      let qr = qrcode(0, 'H');
-      qr.addData(qrContent, 'Byte');
-      qr.make();
-
-      if (includeLogo && qr.getModuleCount() < logoMatrix.length * 2) {
-        const typeNumber = Math.ceil((logoMatrix.length * 2 - 17) / 4)
-        qr = qrcode(typeNumber, 'H');
-        qr.addData(qrContent, 'Byte');
-        qr.make();
-      }
-
-      const matrix = getMatrix(qr);
-      if (includeLogo) {
-        const disp = Math.floor((matrix.length - logoMatrix.length) / 2);
-        overlay(matrix, logoMatrix, disp, disp);
-      }
+      const matrix = getQRMatrix(qrContent);
 
       const moduleSize = Math.floor(256 / matrix.length);
       canvas.width = moduleSize * matrix.length;
