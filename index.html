@@ -220,7 +220,7 @@
     }
   }
 
-  function getQRMatrix(qrContent) {
+  function getQRMatrix(qrContent, includeLogo) {
     qrContent = unescape(encodeURIComponent(qrContent.trim()));
 
     let qr = qrcode(0, 'H');
@@ -258,7 +258,7 @@
     }
 
     hideErrorMessage();
-    let includeLogo = logoCheckbox.checked;
+    const includeLogo = logoCheckbox.checked;
 
     generateButton.textContent = 'Generálás...';
     generateButton.disabled = true;
@@ -266,7 +266,7 @@
 
     try {
       const canvas = document.createElement('canvas');
-      const matrix = getQRMatrix(qrContent);
+      const matrix = getQRMatrix(qrContent, includeLogo);
 
       const moduleSize = Math.floor(256 / matrix.length);
       canvas.width = moduleSize * matrix.length;
