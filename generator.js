@@ -6,6 +6,8 @@ const logoCheckbox = document.getElementById('includeLogo');
 const shapeDropdown = document.getElementById('shape');
 const qrContainer = document.getElementById('qr-code');
 
+const textEncoder = new TextEncoder();
+
 const colors = {
     1: '#ffffff',
     2: '#000000',
@@ -144,16 +146,16 @@ function overlay(m1, m2, dx, dy) {
 }
 
 function getQRMatrix(qrContent, includeLogo) {
-    qrContent = unescape(encodeURIComponent(qrContent.trim()));
+    qrContent = String.fromCharCode(...textEncoder.encode(qrContent));
 
     let qr = qrcode(0, 'H');
-    qr.addData(qrContent, 'Byte');
+    qr.addData(qrContent);
     qr.make();
 
     if (includeLogo && qr.getModuleCount() < logoMatrix.length * 2) {
         const typeNumber = Math.ceil((logoMatrix.length * 2 - 17) / 4)
         qr = qrcode(typeNumber, 'H');
-        qr.addData(qrContent, 'Byte');
+        qr.addData(qrContent);
         qr.make();
     }
 
@@ -175,6 +177,7 @@ function getQRMatrix(qrContent, includeLogo) {
 }
 
 function generateQrCode(qrContent) {
+    qrContent = qrContent.trim();
     if (!qrContent) {
         showErrorMessage('Írj be egy URL-t vagy szöveget a generáláshoz!');
         return;
