@@ -14,6 +14,12 @@ const colors = {
     3: '#b7182e'
 };
 
+const inclusive = {
+    1: true,
+    2: false,
+    3: false,
+}
+
 const logoMatrix = [
     [0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 1, 1, 3, 3, 1, 1, 0, 0, 0, 0, 0, 0],
@@ -44,13 +50,19 @@ function floodFill(matrix, start) {
     const val = safeRead(matrix, start);
     while (stack.length > 0) {
         const coord = stack.pop();
-        if (safeRead(matrix, coord) === val) {
-            matrix[coord.y][coord.x] = -1;
-            stack.push({ x: coord.x + 1, y: coord.y });
-            stack.push({ x: coord.x - 1, y: coord.y });
-            stack.push({ x: coord.x, y: coord.y + 1 });
-            stack.push({ x: coord.x, y: coord.y - 1 });
-        }
+        if (safeRead(matrix, coord) !== val)
+            continue;
+        matrix[coord.y][coord.x] = -1;
+        stack.push({ x: coord.x + 1, y: coord.y });
+        stack.push({ x: coord.x - 1, y: coord.y });
+        stack.push({ x: coord.x, y: coord.y + 1 });
+        stack.push({ x: coord.x, y: coord.y - 1 });
+        if (!inclusive[val])
+            continue;
+        stack.push({ x: coord.x + 1, y: coord.y + 1 });
+        stack.push({ x: coord.x + 1, y: coord.y - 1 });
+        stack.push({ x: coord.x - 1, y: coord.y + 1 });
+        stack.push({ x: coord.x - 1, y: coord.y - 1 });
     }
 }
 
@@ -73,7 +85,7 @@ function getOutline(matrix, coord) {
 
         let left = safeRead(matrix, lcoord);
         let right = safeRead(matrix, rcoord);
-        let turn = val == 1
+        let turn = inclusive[val]
             ? left == val ? 1 : right == val ? 0 : -1
             : right != val ? -1 : left != val ? 0 : 1;
 
@@ -225,17 +237,17 @@ function hideErrorMessage() {
     errorMessage.textContent = '';
 }
 
-window.onload = function () {
+document.addEventListener("DOMContentLoaded", () => {
     generateQrCode("https://www.szentignac.hu");
-};
+});
 
-generateButton.addEventListener("click", function () {
+generateButton.addEventListener("click", () => {
     let qrContent = qrContentInput.value;
 
     generateQrCode(qrContent);
 });
 
-qrContentInput.addEventListener('keypress', function (event) {
+qrContentInput.addEventListener('keypress', (event) => {
     if (event.key === 'Enter') {
         event.preventDefault();
         generateButton.click();
