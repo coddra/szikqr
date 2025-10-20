@@ -5,6 +5,9 @@ const errorMessage = document.getElementById('errorMessage');
 const logoCheckbox = document.getElementById('includeLogo');
 const shapeDropdown = document.getElementById('shape');
 const qrContainer = document.getElementById('qr-code');
+const hatterCPicker = document.getElementById('Hatter-cpicker');
+const qrCPicker = document.getElementById('qr-cpicker');
+const logoCPicker = document.getElementById('logo-cpicker');
 
 const textEncoder = new TextEncoder();
 
@@ -197,6 +200,11 @@ function generateQrCode(qrContent) {
 
     hideErrorMessage();
     const includeLogo = logoCheckbox.checked;
+
+    colors[1] = hatterCPicker.value;
+    colors[2] = qrCPicker.value;
+    colors[3] = logoCPicker.value;
+
 
     generateButton.textContent = 'Generálás...';
     generateButton.disabled = true;
