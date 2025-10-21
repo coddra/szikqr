@@ -17,6 +17,8 @@ const colors = {
     3: '#b7182e'
 };
 
+const MINCONTRAST = 3.5;
+
 const inclusive = {
     1: true,
     2: false,
@@ -205,6 +207,10 @@ function generateQrCode(qrContent) {
     colors[2] = qrCPicker.value;
     colors[3] = logoCPicker.value;
 
+    //check contrast
+    var cont = contrast(colors[1], colors[2]);
+    if(cont < MINCONTRAST)
+        showErrorMessage(`A háttér és a QR-kód színe nem üt el eléggé egymástól, nagy eséllyel nem olvasható.<br>A kontraszt értéke: ${cont.toFixed(2)}<br>A kontraszt értéke legyen nagyobb, mint ${MINCONTRAST}`);
 
     generateButton.textContent = 'Generálás...';
     generateButton.disabled = true;
@@ -235,7 +241,7 @@ function generateQrCode(qrContent) {
 }
 
 function showErrorMessage(message) {
-    errorMessage.textContent = message;
+    errorMessage.innerHTML = message;
     errorMessage.classList.remove('hidden');
     qrCodeDisplay.classList.add('hidden');
 }
@@ -244,6 +250,46 @@ function hideErrorMessage() {
     errorMessage.classList.add('hidden');
     errorMessage.textContent = '';
 }
+
+//color contrast checker
+function hexToRgb(hex) {
+    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16)
+    } : null;
+}
+
+
+function luminance(hexColor) {
+    const RED = 0.2126;
+    const GREEN = 0.7152;
+    const BLUE = 0.0722;
+
+    const GAMMA = 2.4;
+    rgbColor = hexToRgb(hexColor)
+    var r = rgbColor.r;
+    var g = rgbColor.g;
+    var b = rgbColor.b;
+    var a = [r, g, b].map((v) => {
+        v /= 255;
+        return v <= 0.03928
+            ? v / 12.92
+            : Math.pow((v + 0.055) / 1.055, GAMMA);
+    });
+    return a[0] * RED + a[1] * GREEN + a[2] * BLUE;
+}
+
+function contrast(hexColor1, hexColor2) {
+    var lum1 = luminance(hexColor1);
+    var lum2 = luminance(hexColor2);
+    var brightest = Math.max(lum1, lum2);
+    var darkest = Math.min(lum1, lum2);
+    return (brightest + 0.05) / (darkest + 0.05);
+}
+
+
 
 document.addEventListener("DOMContentLoaded", () => {
     generateQrCode("https://www.szentignac.hu");
