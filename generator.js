@@ -1,13 +1,7 @@
-const qrContentInput = document.getElementById("qr-content");
-const generateButton = document.getElementById("generateButton");
-const qrCodeDisplay = document.getElementById("qrCodeDisplay");
-const errorMessage = document.getElementById('errorMessage');
-const logoCheckbox = document.getElementById('includeLogo');
-const shapeDropdown = document.getElementById('shape');
-const qrContainer = document.getElementById('qr-code');
-const bgCPicker = document.getElementById('bg-cpicker');
-const qrCPicker = document.getElementById('qr-cpicker');
-const logoCPicker = document.getElementById('logo-cpicker');
+var qrContentInput, generateButton,
+    qrCodeDisplay, qrContainer, errorMessage,
+    logoCheckbox, shapeDropdown,
+    bgCPicker, qrCPicker, logoCPicker;
 
 const textEncoder = new TextEncoder();
 
@@ -258,18 +252,27 @@ function hideErrorMessage() {
 
 
 document.addEventListener("DOMContentLoaded", () => {
+    qrContentInput = document.getElementById("qr-content");
+    generateButton = document.getElementById("generateButton");
+    qrCodeDisplay = document.getElementById("qrCodeDisplay");
+    errorMessage = document.getElementById('errorMessage');
+    logoCheckbox = document.getElementById('includeLogo');
+    shapeDropdown = document.getElementById('shape');
+    qrContainer = document.getElementById('qr-code');
+    bgCPicker = document.getElementById('bg-cpicker');
+    qrCPicker = document.getElementById('qr-cpicker');
+    logoCPicker = document.getElementById('logo-cpicker');
+
+    generateButton.addEventListener("click", () => {
+        generateQrCode(qrContentInput.value);
+    });
+
+    qrContentInput.addEventListener('keypress', (event) => {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            generateButton.click();
+        }
+    });
+
     generateQrCode("https://www.szentignac.hu");
-});
-
-generateButton.addEventListener("click", () => {
-    let qrContent = qrContentInput.value;
-
-    generateQrCode(qrContent);
-});
-
-qrContentInput.addEventListener('keypress', (event) => {
-    if (event.key === 'Enter') {
-        event.preventDefault();
-        generateButton.click();
-    }
 });
