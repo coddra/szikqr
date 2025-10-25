@@ -25,6 +25,7 @@
       height: auto;
     }
   </style>
+  <script src="color.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
 </head>
 
@@ -42,6 +43,27 @@
         autocomplete="off"
         class="w-full p-3 border border-gray-300 rounded-lg focus:directions-none focus:ring-2 focus:ring-blue-400 text-gray-800" />
     </div>
+
+    <div class="flex flex-col mb-5">
+      <span class="block text-gray-700 text-sm font-semibold mb-2">
+        Szín beállítások:
+      </span>
+      <div class="flex justify-around">
+        <div class="flex items-center space-x-2">
+          <label for="bg-cpicker" class="text-sm text-gray-700">Háttér:</label>
+          <input id="bg-cpicker" type="color" value="#FFFFFF" class="w-8 h-8 rounded cursor-pointer">
+        </div>
+        <div class="flex items-center space-x-2">
+          <label for="qr-cpicker" class="text-sm text-gray-700">QR:</label>
+          <input id="qr-cpicker" type="color" value="#000000" class="w-8 h-8 rounded cursor-pointer">
+        </div>
+        <div class="flex items-center space-x-2">
+          <label for="logo-cpicker" class="text-sm text-gray-700">Logó:</label>
+          <input id="logo-cpicker" type="color" value="#B7182E" class="w-8 h-8 rounded cursor-pointer">
+        </div>
+      </div>
+    </div>
+
 
     <div class="flex items-center justify-between mb-4">
       <div class="flex items-center">

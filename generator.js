@@ -5,6 +5,9 @@ const errorMessage = document.getElementById('errorMessage');
 const logoCheckbox = document.getElementById('includeLogo');
 const shapeDropdown = document.getElementById('shape');
 const qrContainer = document.getElementById('qr-code');
+const bgCPicker = document.getElementById('bg-cpicker');
+const qrCPicker = document.getElementById('qr-cpicker');
+const logoCPicker = document.getElementById('logo-cpicker');
 
 const textEncoder = new TextEncoder();
 
@@ -13,6 +16,8 @@ const colors = {
     2: '#000000',
     3: '#b7182e'
 };
+
+const MINCONTRAST = 3.5;
 
 const inclusive = {
     1: true,
@@ -198,7 +203,16 @@ function generateQrCode(qrContent) {
     hideErrorMessage();
     const includeLogo = logoCheckbox.checked;
 
-    generateButton.textContent = 'Generálás...';
+    colors[1] = bgCPicker.value;
+    colors[2] = qrCPicker.value;
+    colors[3] = logoCPicker.value;
+
+    //check contrast
+    var cont = contrast(colors[1], colors[2]);
+    if(cont < MINCONTRAST)
+        showErrorMessage(`A háttér és a QR-kód színe nem üt el eléggé egymástól, nagy eséllyel nem olvasható.<br>A kontraszt értéke: ${cont.toFixed(2)}<br>A kontraszt értéke legyen nagyobb, mint ${MINCONTRAST}`);
+
+    generateButton.innerText = 'Generálás...';
     generateButton.disabled = true;
     qrContainer.innerHTML = '';
 
@@ -221,21 +235,23 @@ function generateQrCode(qrContent) {
         showErrorMessage(`Probléma akadt a QR-kód generálásakor: ${err.message || 'ismeretlen probléma'}`);
         console.error(err);
     } finally {
-        generateButton.textContent = 'QR-kód generálása';
+        generateButton.innerText = 'QR-kód generálása';
         generateButton.disabled = false;
     }
 }
 
 function showErrorMessage(message) {
-    errorMessage.textContent = message;
+    errorMessage.innerText = message;
     errorMessage.classList.remove('hidden');
     qrCodeDisplay.classList.add('hidden');
 }
 
 function hideErrorMessage() {
     errorMessage.classList.add('hidden');
-    errorMessage.textContent = '';
+    errorMessage.innerText = '';
 }
+
+
 
 document.addEventListener("DOMContentLoaded", () => {
     generateQrCode("https://www.szentignac.hu");
