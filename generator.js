@@ -210,7 +210,11 @@ function generateQrCode(qrContent) {
     //check contrast
     var cont = contrast(colors[1], colors[2]);
     if(cont < MINCONTRAST)
-        showErrorMessage(`A háttér és a QR-kód színe nem üt el eléggé egymástól, nagy eséllyel nem olvasható.<br>A kontraszt értéke: ${cont.toFixed(2)}<br>A kontraszt értéke legyen nagyobb, mint ${MINCONTRAST}`);
+        showErrorMessage(
+            `A háttér és a QR-kód színe nem üt el eléggé egymástól, nagy eséllyel nem olvasható.
+            A kontraszt értéke: ${cont.toFixed(2)}
+            A kontraszt értéke legyen nagyobb, mint ${MINCONTRAST}`
+        );
 
     generateButton.innerText = 'Generálás...';
     generateButton.disabled = true;
