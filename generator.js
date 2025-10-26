@@ -129,7 +129,7 @@ function drawBlob(ctx, outline, color, moduleSize, maxarc) {
     ctx.fill();
 }
 
-function drawMatrix(ctx, matrix, moduleSize) {
+function drawMatrix(ctx, matrix, moduleSize, maxarc) {
     const size = matrix.length;
     ctx.fillStyle = colors[1];
     ctx.fillRect(0, 0, size * moduleSize, size * moduleSize);
@@ -140,7 +140,6 @@ function drawMatrix(ctx, matrix, moduleSize) {
             if (!colors[val])
                 continue;
             const outline = getOutline(matrix, { y, x });
-            const maxarc = parseInt(shapeDropdown.value);
             drawBlob(ctx, outline, colors[val], moduleSize, maxarc);
             floodFill(matrix, { y, x });
         }
@@ -196,6 +195,7 @@ function generateQrCode(qrContent) {
 
     hideErrorMessage();
     const includeLogo = logoCheckbox.checked;
+    const maxarc = parseInt(shapeDropdown.value);
 
     colors[1] = bgCPicker.value;
     colors[2] = qrCPicker.value;
@@ -218,12 +218,12 @@ function generateQrCode(qrContent) {
         const canvas = document.createElement('canvas');
         const matrix = getQRMatrix(qrContent, includeLogo);
 
-        const moduleSize = Math.floor(256 / matrix.length);
+        const moduleSize = maxarc ? 16 : 8;
         canvas.width = moduleSize * matrix.length;
         canvas.height = canvas.width;
         const ctx = canvas.getContext("2d");
 
-        drawMatrix(ctx, matrix, moduleSize);
+        drawMatrix(ctx, matrix, moduleSize, maxarc);
 
         const img = document.createElement('img');
         img.src = canvas.toDataURL('image/png');
