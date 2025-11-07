@@ -133,6 +133,7 @@ function drawMatrix(ctx, matrix, maxarc) {
     const size = matrix.length;
     ctx.fillStyle = colors[1];
     ctx.fillRect(0, 0, size, size);
+    floodFill(matrix, { y: 0, x: 0 });
 
     for (let y = 0; y < size; y++) {
         for (let x = 0; x < size; x++) {
