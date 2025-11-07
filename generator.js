@@ -105,10 +105,10 @@ function getOutline(matrix, coord) {
     return outline;
 }
 
-function drawBlob(ctx, outline, color, moduleSize, maxarc) {
+function drawBlob(ctx, outline, color, maxarc) {
     ctx.beginPath();
     const current = outline.start;
-    ctx.moveTo(current.x * moduleSize, current.y * moduleSize);
+    ctx.moveTo(current.x, current.y);
     for (let i = 0; i < outline.lines.length; i++) {
         const relative = outline.lines[i];
         const next = outline.lines[i == outline.lines.length - 1 ? 0 : i + 1];
@@ -117,22 +117,22 @@ function drawBlob(ctx, outline, color, moduleSize, maxarc) {
             y: current.y + relative.y - Math.sign(relative.y) * arc,
             x: current.x + relative.x - Math.sign(relative.x) * arc,
         }
-        ctx.lineTo(target.x * moduleSize, target.y * moduleSize);
+        ctx.lineTo(target.x, target.y);
 
         current.y += relative.y;
         current.x += relative.x;
         target.y = current.y + Math.sign(next.y) * arc;
         target.x = current.x + Math.sign(next.x) * arc;
-        ctx.arcTo(current.x * moduleSize, current.y * moduleSize, target.x * moduleSize, target.y * moduleSize, arc * moduleSize);
+        ctx.arcTo(current.x, current.y, target.x, target.y, arc);
     }
     ctx.fillStyle = color;
     ctx.fill();
 }
 
-function drawMatrix(ctx, matrix, moduleSize, maxarc) {
+function drawMatrix(ctx, matrix, maxarc) {
     const size = matrix.length;
     ctx.fillStyle = colors[1];
-    ctx.fillRect(0, 0, size * moduleSize, size * moduleSize);
+    ctx.fillRect(0, 0, size, size);
 
     for (let y = 0; y < size; y++) {
         for (let x = 0; x < size; x++) {
@@ -140,7 +140,7 @@ function drawMatrix(ctx, matrix, moduleSize, maxarc) {
             if (!colors[val])
                 continue;
             const outline = getOutline(matrix, { y, x });
-            drawBlob(ctx, outline, colors[val], moduleSize, maxarc);
+            drawBlob(ctx, outline, colors[val], maxarc);
             floodFill(matrix, { y, x });
         }
     }
@@ -222,8 +222,9 @@ function generateQrCode(qrContent) {
         canvas.width = moduleSize * matrix.length;
         canvas.height = canvas.width;
         const ctx = canvas.getContext("2d");
+        ctx.scale(moduleSize, moduleSize);
 
-        drawMatrix(ctx, matrix, moduleSize, maxarc);
+        drawMatrix(ctx, matrix, maxarc);
 
         const img = document.createElement('img');
         img.src = canvas.toDataURL('image/png');
