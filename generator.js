@@ -170,13 +170,17 @@ function getQRMatrix(qrContent, includeLogo) {
     }
 
     const size = qr.getModuleCount();
-    const res = new Array(size);
+    const res = new Array(size + 2);
     for (let y = 0; y < size; y++) {
-        res[y] = new Array(size);
+        res[y + 1] = new Array(size + 2);
+        res[y + 1][0] = 1;
+        res[y + 1][size + 1] = 1;
         for (let x = 0; x < size; x++) {
-            res[y][x] = qr.isDark(y, x) ? 2 : 1;
+            res[y + 1][x + 1] = qr.isDark(y, x) ? 2 : 1;
         }
     }
+    res[0] = new Array(size + 2).fill(1);
+    res[size + 1] = new Array(size + 2).fill(1);
 
     if (includeLogo) {
         const disp = Math.floor((res.length - logoMatrix.length) / 2);
