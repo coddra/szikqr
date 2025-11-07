@@ -107,23 +107,23 @@ function getOutline(matrix, coord) {
 
 function drawBlob(ctx, outline, color, moduleSize, maxarc) {
     ctx.beginPath();
-    const c = outline.start;
-    ctx.moveTo(c.x * moduleSize, c.y * moduleSize);
+    const current = outline.start;
+    ctx.moveTo(current.x * moduleSize, current.y * moduleSize);
     for (let i = 0; i < outline.lines.length; i++) {
-        const r = outline.lines[i];
-        const n = i == outline.lines.length - 1 ? outline.lines[0] : outline.lines[i + 1];
-        const a = Math.min(Math.abs(r.x + r.y), Math.abs(n.x + n.y), maxarc) / 2;
-        const p = {
-            y: c.y + r.y - Math.sign(r.y) * a,
-            x: c.x + r.x - Math.sign(r.x) * a,
+        const relative = outline.lines[i];
+        const next = outline.lines[i == outline.lines.length - 1 ? 0 : i + 1];
+        const arc = Math.min(Math.abs(relative.x + relative.y), Math.abs(next.x + next.y), maxarc) / 2;
+        const target = {
+            y: current.y + relative.y - Math.sign(relative.y) * arc,
+            x: current.x + relative.x - Math.sign(relative.x) * arc,
         }
-        ctx.lineTo(p.x * moduleSize, p.y * moduleSize);
+        ctx.lineTo(target.x * moduleSize, target.y * moduleSize);
 
-        c.y += r.y;
-        c.x += r.x;
-        p.y = c.y + Math.sign(n.y) * a;
-        p.x = c.x + Math.sign(n.x) * a;
-        ctx.arcTo(c.x * moduleSize, c.y * moduleSize, p.x * moduleSize, p.y * moduleSize, a * moduleSize);
+        current.y += relative.y;
+        current.x += relative.x;
+        target.y = current.y + Math.sign(next.y) * arc;
+        target.x = current.x + Math.sign(next.x) * arc;
+        ctx.arcTo(current.x * moduleSize, current.y * moduleSize, target.x * moduleSize, target.y * moduleSize, arc * moduleSize);
     }
     ctx.fillStyle = color;
     ctx.fill();
