@@ -1,4 +1,3 @@
-//color contrast checker
 function hexToRgb(hex) {
     var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
     return result ? [
@@ -15,7 +14,7 @@ function luminance(hexColor) {
     const BLUE = 0.0722;
 
     const GAMMA = 2.4;
-    rgbColor = hexToRgb(hexColor)
+    var rgbColor = hexToRgb(hexColor);
     var a = rgbColor.map((v) => {
         v /= 255;
         return v <= 0.03928
@@ -25,7 +24,7 @@ function luminance(hexColor) {
     return a[0] * RED + a[1] * GREEN + a[2] * BLUE;
 }
 
-function contrast(hexColor1, hexColor2) {
+export function contrast(hexColor1, hexColor2) {
     var lum1 = luminance(hexColor1);
     var lum2 = luminance(hexColor2);
     var brightest = Math.max(lum1, lum2);
