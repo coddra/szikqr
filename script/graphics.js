@@ -5,19 +5,23 @@ function drawBlob(ctx, outline, color, maxarc) {
     const current = outline.start;
     ctx.moveTo(current.x, current.y);
     for (let i = 0; i < outline.lines.length; i++) {
-        const relative = outline.lines[i];
-        const next = outline.lines[i == outline.lines.length - 1 ? 0 : i + 1];
-        const arc = Math.min(Math.abs(relative.x + relative.y), Math.abs(next.x + next.y), maxarc) / 2;
+        const window = [-1, 0, 1, 2].map(offset =>
+            outline.lines[(i + offset + outline.lines.length) % outline.lines.length]
+        );
+        const arcs = [0, 1, 2].map(j =>
+            Math.min(Math.abs(window[j].x + window[j].y), Math.abs(window[j + 1].x + window[j + 1].y), maxarc) / 2
+        );
+        const arc = Math.min(Math.max(...arcs), 2 * arcs[1] - Math.min(arcs[0], arcs[2]));
         const target = {
-            y: current.y + relative.y - Math.sign(relative.y) * arc,
-            x: current.x + relative.x - Math.sign(relative.x) * arc,
+            y: current.y + window[1].y - Math.sign(window[1].y) * arc,
+            x: current.x + window[1].x - Math.sign(window[1].x) * arc,
         }
         ctx.lineTo(target.x, target.y);
 
-        current.y += relative.y;
-        current.x += relative.x;
-        target.y = current.y + Math.sign(next.y) * arc;
-        target.x = current.x + Math.sign(next.x) * arc;
+        current.y += window[1].y;
+        current.x += window[1].x;
+        target.y = current.y + Math.sign(window[2].y) * arc;
+        target.x = current.x + Math.sign(window[2].x) * arc;
         ctx.arcTo(current.x, current.y, target.x, target.y, arc);
     }
     ctx.fillStyle = color;
