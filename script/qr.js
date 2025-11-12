@@ -18,17 +18,15 @@ export function getQRMatrix(qrContent, includeLogo) {
     }
 
     const size = qr.getModuleCount();
-    const res = new Array(size + 2);
-    for (let y = 0; y < size; y++) {
-        res[y + 1] = new Array(size + 2);
-        res[y + 1][0] = 1;
-        res[y + 1][size + 1] = 1;
-        for (let x = 0; x < size; x++) {
-            res[y + 1][x + 1] = qr.isDark(y, x) ? 2 : 1;
-        }
-    }
-    res[0] = new Array(size + 2).fill(1);
-    res[size + 1] = new Array(size + 2).fill(1);
+    const res = Array.from({ length: size + 2 }, (v, y) =>
+        y === 0 || y === size + 1
+        ? new Array(size + 2).fill(1)
+        : Array.from({ length: size + 2 }, (v, x) =>
+            x === 0 || x === size + 1
+            ? 1
+            : qr.isDark(y - 1, x - 1) ? 2 : 1
+        )
+    );
 
     if (includeLogo) {
         const shift = Math.floor((res.length - logoSZIK.length) / 2);

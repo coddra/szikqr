@@ -1,6 +1,5 @@
 function safeRead(matrix, coord) {
-    return coord.x < 0 || coord.y < 0 || coord.x >= matrix.length || coord.y >= matrix.length
-        ? -1 : matrix[coord.y][coord.x];
+    return matrix[coord.y] ? matrix[coord.y][coord.x] : undefined;
 }
 
 
@@ -13,49 +12,53 @@ export function overlay(matrix1, matrix2, shift) {
     }
 }
 
-export function floodFill(matrix, start, fullMerge) {
+export function floodFill(matrix, start, fullMerge = true, value = null) {
     const stack = [start];
-    const val = safeRead(matrix, start);
+    const search = safeRead(matrix, start);
     while (stack.length > 0) {
         const coord = stack.pop();
-        if (safeRead(matrix, coord) !== val)
-            continue;
-        matrix[coord.y][coord.x] = -1;
-        stack.push({ x: coord.x + 1, y: coord.y });
-        stack.push({ x: coord.x - 1, y: coord.y });
-        stack.push({ x: coord.x, y: coord.y + 1 });
-        stack.push({ x: coord.x, y: coord.y - 1 });
-        if (!fullMerge)
-            continue;
-        stack.push({ x: coord.x + 1, y: coord.y + 1 });
-        stack.push({ x: coord.x + 1, y: coord.y - 1 });
-        stack.push({ x: coord.x - 1, y: coord.y + 1 });
-        stack.push({ x: coord.x - 1, y: coord.y - 1 });
+        matrix[coord.y][coord.x] = value;
+        let neighbors = [
+            { x: coord.x + 1, y: coord.y },
+            { x: coord.x - 1, y: coord.y },
+            { x: coord.x, y: coord.y + 1 },
+            { x: coord.x, y: coord.y - 1 },
+        ];
+        if (fullMerge)
+            neighbors = neighbors.concat([
+                { x: coord.x + 1, y: coord.y + 1 },
+                { x: coord.x + 1, y: coord.y - 1 },
+                { x: coord.x - 1, y: coord.y + 1 },
+                { x: coord.x - 1, y: coord.y - 1 },
+            ]);
+        for (const neighbor of neighbors)
+            if (safeRead(matrix, neighbor) == search)
+                stack.push(neighbor);
     }
 }
 
 export function getOutline(matrix, coord, fullMerge) {
     const direction = { y: 0, x: 1 };
     const outline = { start: coord, lines: [] };
-    const val = safeRead(matrix, coord);
+    const search = matrix[coord.y][coord.x];
     const current = { y: coord.y, x: coord.x + 1 };
     const last = { ...coord };
 
-    while (current.x != coord.x || current.y != coord.y) {
-        let lcoord, rcoord;
+    while (!(current.x == coord.x && current.y == coord.y)) {
+        let left, right;
         if (direction.x > 0 || direction.y > 0) {
-            lcoord = { y: current.y - direction.x, x: current.x };
-            rcoord = { y: current.y, x: current.x - direction.y };
+            left = { y: current.y - direction.x, x: current.x };
+            right = { y: current.y, x: current.x - direction.y };
         } else {
-            lcoord = { y: current.y + direction.y, x: current.x + direction.y + direction.x };
-            rcoord = { y: current.y + direction.y + direction.x, x: current.x + direction.x }
+            left = { y: current.y + direction.y, x: current.x + direction.y + direction.x };
+            right = { y: current.y + direction.y + direction.x, x: current.x + direction.x };
         }
 
-        let left = safeRead(matrix, lcoord);
-        let right = safeRead(matrix, rcoord);
+        let leftValue = safeRead(matrix, left);
+        let rightValue = safeRead(matrix, right);
         let turn = fullMerge
-            ? left == val ? 1 : right == val ? 0 : -1
-            : right != val ? -1 : left != val ? 0 : 1;
+            ? leftValue == search ? 1 : rightValue == search ? 0 : -1
+            : rightValue != search ? -1 : leftValue != search ? 0 : 1;
 
         const x = direction.x;
         direction.x = turn == 0 ? direction.x : turn * direction.y;

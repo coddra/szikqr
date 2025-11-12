@@ -28,16 +28,16 @@ export function drawMatrix(ctx, matrix, maxarc, colors) {
     const size = matrix.length;
     ctx.fillStyle = colors[1].hex;
     ctx.fillRect(0, 0, size, size);
-    floodFill(matrix, { y: 0, x: 0 }, true);
+    floodFill(matrix, { y: 0, x: 0 });
 
     for (let y = 0; y < size; y++) {
         for (let x = 0; x < size; x++) {
-            const val = matrix[y][x];
-            if (!colors[val])
+            const value = matrix[y][x];
+            if (!colors[value])
                 continue;
-            const outline = getOutline(matrix, { y, x }, colors[val].fullMerge);
-            drawBlob(ctx, outline, colors[val].hex, maxarc);
-            floodFill(matrix, { y, x }, colors[val].fullMerge);
+            const outline = getOutline(matrix, { y, x }, colors[value].fullMerge);
+            drawBlob(ctx, outline, colors[value].hex, maxarc);
+            floodFill(matrix, { y, x }, colors[value].fullMerge);
         }
     }
 }

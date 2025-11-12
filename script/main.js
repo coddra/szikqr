@@ -7,6 +7,8 @@ var qrContentInput, generateButton,
     logoCheckbox, shapeDropdown,
     bgCPicker, qrCPicker, logoCPicker;
 
+const MINCONTRAST = 3.5;
+
 const colors = {
     1: {
         hex: '#ffffff',
@@ -21,8 +23,6 @@ const colors = {
         fullMerge: false
     }
 };
-
-const MINCONTRAST = 3.5;
 
 function generateQrCode(qrContent) {
     qrContent = qrContent.trim();
