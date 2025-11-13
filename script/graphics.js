@@ -1,4 +1,4 @@
-import { floodFill, getOutline } from './matrix.js';
+import { cloneMatrix, floodFill, getOutline } from './matrix.js';
 
 function drawBlob(ctx, outline, color, maxarc) {
     ctx.beginPath();
@@ -29,6 +29,7 @@ function drawBlob(ctx, outline, color, maxarc) {
 }
 
 export function drawMatrix(ctx, matrix, maxarc, colors) {
+    matrix = cloneMatrix(matrix);
     const size = matrix.length;
     ctx.fillStyle = colors[1].hex;
     ctx.fillRect(0, 0, size, size);

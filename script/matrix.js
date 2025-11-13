@@ -2,6 +2,9 @@ function safeRead(matrix, coord) {
     return matrix[coord.y] ? matrix[coord.y][coord.x] : undefined;
 }
 
+export function cloneMatrix(matrix) {
+    return matrix.map(row => row.slice());
+}
 
 export function overlay(matrix1, matrix2, shift) {
     for (let y = 0; y < matrix2.length; y++) {
