@@ -20,24 +20,31 @@ function mapWindow(array, f, size = 1) {
     return result;
 }
 
+function getArcs(lines, maxarc) {
+    if (maxarc < 2)
+        return lines.map(line => ({ ...line, arc: maxarc / 2 }));
+    let result = lines.map((line, i) => ({
+        ...line,
+        arc: Math.min(lineLength(line), lineLength(wrapRead(lines, i + 1)), maxarc) / 2
+    }));
+    result = mapWindow(result, l => ({
+        ...l[1],
+        arc: Math.min(Math.max(...l.map(l => l.arc)), 2 * l[1].arc - Math.min(...l.map(l => l.arc)))
+    }));
+    result = mapWindow(result, l => ({
+        ...l[1],
+        arc: l[1].arc >= Math.max(...l.map(l => l.arc))
+            ? Math.min(Math.min(...l.map(l => l.arc)) * 3, Math.min(lineLength(l[1]) - l[0].arc, lineLength(l[2]) - l[2].arc))
+            : l[1].arc
+    }));
+    return result;
+}
+
 function drawBlob(ctx, outline, color, maxarc) {
     ctx.beginPath();
     const coord = outline.start;
     ctx.moveTo(coord.x, coord.y);
-    let lines = outline.lines.map((line, i) => ({
-        ...line,
-        arc: Math.min(lineLength(line), lineLength(wrapRead(outline.lines, i + 1)), maxarc) / 2
-    }));
-    lines = mapWindow(lines, l => ({
-        ...l[1],
-        arc: Math.min(Math.max(...l.map(l => l.arc)), 2 * l[1].arc - Math.min(...l.map(l => l.arc)))
-    }));
-    lines = mapWindow(lines, l => ({
-        ...l[1],
-        arc: l[1].arc >= Math.max(...l.map(l => l.arc))
-            ? Math.min(Math.min(...l.map(l => l.arc)) * 3, Math.min(lineLength(l[1]) - l[0].arc, lineLength(l[2]) - l[2].arc))
-             : l[1].arc
-    }));
+    let lines = getArcs(outline.lines, maxarc);
     for (let i = 0; i < lines.length; i++) {
         const current = lines[i];
         const next = wrapRead(lines, i + 1);
