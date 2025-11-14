@@ -112,5 +112,5 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    generateQrCode("https://www.szentignac.hu");
+    //generateQrCode("https://www.szentignac.hu");
 });
