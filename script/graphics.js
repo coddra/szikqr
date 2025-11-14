@@ -1,28 +1,57 @@
 import { cloneMatrix, floodFill, getOutline } from './matrix.js';
 
+function lineLength(line) {
+    return Math.abs(line.x + line.y);
+}
+
+function wrapRead(array, i) {
+    const n = array.length;
+    return array[(i % n + n) % n];
+}
+
+function mapWindow(array, f, size = 1) {
+    let result = new Array(array.length);
+    for (let i = 0; i < array.length; i++) {
+        const window = [];
+        for (let j = -size; j <= size; j++)
+            window.push(wrapRead(array, i + j));
+        result[i] = f(window);
+    }
+    return result;
+}
+
 function drawBlob(ctx, outline, color, maxarc) {
     ctx.beginPath();
-    const current = outline.start;
-    ctx.moveTo(current.x, current.y);
-    for (let i = 0; i < outline.lines.length; i++) {
-        const window = [-1, 0, 1, 2].map(offset =>
-            outline.lines[(i + offset + outline.lines.length) % outline.lines.length]
-        );
-        const arcs = [0, 1, 2].map(j =>
-            Math.min(Math.abs(window[j].x + window[j].y), Math.abs(window[j + 1].x + window[j + 1].y), maxarc) / 2
-        );
-        const arc = Math.min(Math.max(...arcs), 2 * arcs[1] - Math.min(arcs[0], arcs[2]));
+    const coord = outline.start;
+    ctx.moveTo(coord.x, coord.y);
+    let lines = outline.lines.map((line, i) => ({
+        ...line,
+        arc: Math.min(lineLength(line), lineLength(wrapRead(outline.lines, i + 1)), maxarc) / 2
+    }));
+    lines = mapWindow(lines, l => ({
+        ...l[1],
+        arc: Math.min(Math.max(...l.map(l => l.arc)), 2 * l[1].arc - Math.min(...l.map(l => l.arc)))
+    }));
+    lines = mapWindow(lines, l => ({
+        ...l[1],
+        arc: l[1].arc >= Math.max(...l.map(l => l.arc))
+            ? Math.min(Math.min(...l.map(l => l.arc)) * 3, Math.min(lineLength(l[1]) - l[0].arc, lineLength(l[2]) - l[2].arc))
+             : l[1].arc
+    }));
+    for (let i = 0; i < lines.length; i++) {
+        const current = lines[i];
+        const next = wrapRead(lines, i + 1);
         const target = {
-            y: current.y + window[1].y - Math.sign(window[1].y) * arc,
-            x: current.x + window[1].x - Math.sign(window[1].x) * arc,
+            y: coord.y + current.y - Math.sign(current.y) * current.arc,
+            x: coord.x + current.x - Math.sign(current.x) * current.arc,
         }
         ctx.lineTo(target.x, target.y);
 
-        current.y += window[1].y;
-        current.x += window[1].x;
-        target.y = current.y + Math.sign(window[2].y) * arc;
-        target.x = current.x + Math.sign(window[2].x) * arc;
-        ctx.arcTo(current.x, current.y, target.x, target.y, arc);
+        coord.y += current.y;
+        coord.x += current.x;
+        target.y = coord.y + Math.sign(next.y) * current.arc;
+        target.x = coord.x + Math.sign(next.x) * current.arc;
+        ctx.arcTo(coord.x, coord.y, target.x, target.y, current.arc);
     }
     ctx.fillStyle = color;
     ctx.fill();
