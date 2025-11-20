@@ -1,0 +1,30 @@
+{
+  "name": "szikqr",
+  "version": "1.0.0",
+  "description": "QR code generator for my dorm. Our logo can be included. Available at [szikqr.pages.dev](https://szikqr.pages.dev)",
+  "main": "index.js",
+  "scripts": {
+    "build:copy": "cp -r ./src/* public/",
+    "build:css": "tailwindcss -i ./src/styles.css -o ./public/styles.css --minify",
+    "build": "rm -rf public && mkdir public && npm run build:copy && npm run build:css",
+    "clean": "rm -rf public",
+    "start": "npm run build && serve public",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/coddra/szikqr.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/coddra/szikqr/issues"
+  },
+  "homepage": "https://github.com/coddra/szikqr#readme",
+  "dependencies": {
+    "@tailwindcss/cli": "^4.1.17",
+    "tailwindcss": "^4.1.17"
+  }
+}
