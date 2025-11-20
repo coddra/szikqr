@@ -1,0 +1,10 @@
+@import "tailwindcss";
+
+body {
+    font-family: 'Inter', sans-serif;
+}
+
+#qrCodeDisplay img {
+    max-width: 100%;
+    height: auto;
+}
