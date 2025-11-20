@@ -1,5 +1,5 @@
 # SzikQR
 
-QR code generator for my dorm. Our logo can be included. Available at [szikqr.pages.dev](https://szikqr.pages.dev)
+QR code generator for my dorm. Our logo can be included. Available at [szqr.hu](https://szqr.hu)
 
-![example](/preview.png)
+![example](/src/preview.png)
