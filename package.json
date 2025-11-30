@@ -8,7 +8,7 @@
     "build:css": "tailwindcss -i ./src/styles.css -o ./public/styles.css --minify",
     "build": "rm -rf public && mkdir public && npm run build:copy && npm run build:css",
     "clean": "rm -rf public",
-    "start": "npm run build && serve public",
+    "start": "npm run build; python3 -m http.server 3000 --directory public > /dev/null 2>&1 & echo \"http://localhost:3000\"; while read -r; do npm run build; done",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
