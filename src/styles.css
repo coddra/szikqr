@@ -8,3 +8,7 @@ body {
     max-width: 100%;
     height: auto;
 }
+
+footer {
+    font-family: 'Roboto Mono', monospace;
+}

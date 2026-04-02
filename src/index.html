@@ -7,14 +7,19 @@
 
   <meta property="og:title" content="SZIK-es QR-kód generátor">
   <meta property="og:description" content="Generálj QR-kódokat SZIK-es logóval vagy anélkül - gyorsan és egyszerűen.">
-  <meta property="og:image" content="https://szqr.hu/preview.png">
+  <meta property="og:image" content="https://szqr.hu/assets/preview.png">
   <meta property="og:url" content="https://szqr.hu/">
   <meta property="og:type" content="website">
   <meta property="og:locale" content="hu_HU">
 
-  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="icon" type="image/png" href="assets/favicon.png">
   <title>SZIK-es QR-kód generátor</title>
 
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap"
+    rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 
@@ -22,7 +27,7 @@
   <script type="module" src="script/main.js"></script>
 </head>
 
-<body class="min-h-screen bg-gradient-to-br from-purple-600 to-blue-500 flex items-center justify-center p-4">
+<body class="min-h-screen bg-gradient-to-br from-purple-600 to-blue-500 flex items-center justify-center p-4 pb-6">
   <div class="bg-stone-50 rounded-xl shadow-2xl p-8 w-full max-w-4xl flex flex-col lg:flex-row lg:min-h-[600px] gap-8">
     <div class="flex-1">
       <h1 class="text-3xl font-bold text-center text-gray-800 mb-6">
@@ -34,8 +39,8 @@
           URL vagy szöveg:
         </label>
         <input type="text" name="qr-code-content" id="qr-content" value="" placeholder="https://example.com"
-        autocomplete="off"
-        class="w-full p-3 border border-gray-300 rounded-lg focus:directions-none focus:ring-2 focus:ring-blue-400 text-gray-800" />
+          autocomplete="off"
+          class="w-full p-3 border border-gray-300 rounded-lg focus:directions-none focus:ring-2 focus:ring-blue-400 text-gray-800" />
       </div>
 
       <div class="flex items-center justify-between mb-6">
@@ -77,12 +82,13 @@
     </div>
 
     <div class="flex-1 lg:border-l lg:pl-8 border-gray-200">
-      <div id="errorMessage" class="mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg text-sm hidden"></div>
+      <div id="errorMessage" class="mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg text-sm hidden">
+      </div>
 
       <div id="qrCodeDisplay" class="mt-8 text-center">
         <h2 class="text-xl font-semibold text-gray-800 mb-4">Íme a QR-kód:</h2>
         <div id="qr-code" class="flex justify-center">
-          <img src="./preview.png" alt="QR-kód" class="rounded-xl shadow-xl border border-gray-300">
+          <img src="./assets/preview.png" alt="QR-kód" class="rounded-xl shadow-xl border border-gray-300">
         </div>
         <p class="mt-4 text-sm text-gray-600">
           Mentéshez jobbklikk a QR-kódra
@@ -90,6 +96,27 @@
       </div>
     </div>
   </div>
+
+  <footer class="hidden lg:block fixed bottom-0 left-0 w-full bg-black text-white text-sm px-3 py-1 z-50">
+    <div class="flex justify-end items-center gap-2">
+      <span>
+        made with ❤️ by
+      </span>
+      <a href="https://github.com/coddra" target="_blank"
+        class="flex items-center group gap-2 transition duration-100 hover:drop-shadow-[0_0_4px_rgba(255,255,255,0.7)]">
+        <span class="font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
+          coddra
+        </span>
+
+        <div class="relative w-8 h-5">
+          <img src="./assets/github-logo.png" alt="GitHub" class="absolute right-0 bottom-0 w-5 h-5">
+
+          <img src="./assets/github-profile.png" alt="Profile"
+            class="absolute right-3 bottom-0 w-5 h-5 rounded-full border border-black bg-black">
+        </div>
+      </a>
+    </div>
+  </footer>
 </body>
 
 </html>
