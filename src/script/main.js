@@ -112,5 +112,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    //generateQrCode("https://www.szentignac.hu");
+    qrContentInput.addEventListener('input', () => {
+        generateButton.disabled = !qrContentInput.value.trim();
+    });
 });
